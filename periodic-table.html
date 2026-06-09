@@ -449,8 +449,9 @@
     async function loadData(){
       try{
         const [jsonRes, csvRes] = await Promise.all([
-          fetch('./PeriodicTableJSON.json'),
-          fetch('./pubchem_periodic_table.csv')
+      fetch('./PeriodicTableJSON.json'),
+      fetch('./pubchem_periodic_table.csv')
+
         ]);
 
         if(!jsonRes.ok){
