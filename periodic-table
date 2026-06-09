@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Periodic Table for Kids</title>
+  <style>
+    :root{
+      --bg:#0f172a;
+      --panel:#111827;
+      --panel-2:#1f2937;
+      --text:#f8fafc;
+      --muted:#cbd5e1;
+      --accent:#22d3ee;
+      --accent-2:#a78bfa;
+      --shadow:0 12px 30px rgba(0,0,0,.28);
+
+      --alkali:#f97316;
+      --alkaline:#f59e0b;
+      --transition:#06b6d4;
+      --post:#14b8a6;
+      --metalloid:#84cc16;
+      --nonmetal:#22c55e;
+      --halogen:#8b5cf6;
+      --noble:#ec4899;
+      --lanthanide:#eab308;
+      --actinide:#ef4444;
+      --unknown:#94a3b8;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:radial-gradient(circle at top,#1e293b,#0f172a 60%);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+    body{padding:18px}
+
+    .wrap{
+      max-width:1600px;
+      margin:0 auto;
+    }
+
+    .hero{
+      background:linear-gradient(145deg,rgba(34,211,238,.14),rgba(167,139,250,.15));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:22px;
+      padding:20px;
+      box-shadow:var(--shadow);
+      margin-bottom:18px;
+    }
+
+    .hero h1{
+      margin:0 0 8px;
+      font-size:clamp(1.7rem,3vw,2.8rem);
+    }
+
+    .hero p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.5;
+      max-width:1100px;
+    }
+
+    .controls{
+      margin-top:16px;
+      display:grid;
+      grid-template-columns: 1.3fr 1fr 1fr;
+      gap:12px;
+    }
+
+    .control-card{
+      background:rgba(17,24,39,.8);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;
+      padding:12px;
+      box-shadow:var(--shadow);
+    }
+
+    .control-card label{
+      display:block;
+      font-size:.9rem;
+      color:#c7d2fe;
+      margin-bottom:6px;
+      font-weight:700;
+    }
+
+    input, select{
+      width:100%;
+      border:none;
+      border-radius:12px;
+      padding:12px 14px;
+      background:#0b1220;
+      color:white;
+      outline:none;
+      font-size:1rem;
+    }
+
+    .legend{
+      margin-top:14px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .chip{
+      border:none;
+      border-radius:999px;
+      padding:9px 12px;
+      font-weight:700;
+      color:#08111f;
+      cursor:pointer;
+      transition:transform .15s ease, opacity .15s ease;
+    }
+
+    .chip:hover{ transform:translateY(-1px); }
+    .chip.active{ outline:3px solid white; }
+
+    .layout{
+      display:grid;
+      grid-template-columns: minmax(340px, 1.15fr) minmax(300px, .85fr);
+      gap:18px;
+      align-items:start;
+      margin-top:18px;
+    }
+
+    .board{
+      background:rgba(17,24,39,.82);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:22px;
+      padding:16px;
+      box-shadow:var(--shadow);
+      overflow:auto;
+    }
+
+    .table-grid{
+      display:grid;
+      grid-template-columns: 52px repeat(18, minmax(62px, 1fr));
+      grid-template-rows: repeat(10, 74px);
+      gap:6px;
+      min-width:1220px;
+      align-items:stretch;
+    }
+
+    .axis{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#cbd5e1;
+      font-size:.86rem;
+      font-weight:700;
+      border-radius:12px;
+      background:rgba(255,255,255,.03);
+      border:1px dashed rgba(255,255,255,.08);
+    }
+
+    .element{
+      border:none;
+      border-radius:14px;
+      padding:6px;
+      cursor:pointer;
+      color:#071018;
+      background:var(--unknown);
+      box-shadow:0 6px 18px rgba(0,0,0,.18);
+      transition:transform .16s ease, box-shadow .16s ease, opacity .16s ease, filter .16s ease;
+      position:relative;
+      text-align:left;
+    }
+
+    .element:hover{
+      transform:translateY(-3px) scale(1.02);
+      box-shadow:0 10px 24px rgba(0,0,0,.25);
+      z-index:2;
+    }
+
+    .element.active{
+      outline:3px solid white;
+      outline-offset:2px;
+      filter:brightness(1.05);
+    }
+
+    .element.dim{ opacity:.22; }
+
+    .num{
+      font-size:.72rem;
+      font-weight:700;
+      opacity:.86;
+    }
+
+    .sym{
+      font-size:1.35rem;
+      font-weight:900;
+      line-height:1.12;
+      margin-top:4px;
+    }
+
+    .name{
+      font-size:.72rem;
+      font-weight:700;
+      margin-top:4px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .tiny{
+      font-size:.65rem;
+      font-weight:700;
+      opacity:.82;
+      margin-top:3px;
+    }
+
+    .panel{
+      background:rgba(17,24,39,.88);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:22px;
+      padding:18px;
+      box-shadow:var(--shadow);
+      position:sticky;
+      top:18px;
+    }
+
+    .badge{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:.85rem;
+      font-weight:800;
+      color:#071018;
+      margin-bottom:10px;
+    }
+
+    .big-symbol{
+      font-size:4rem;
+      font-weight:900;
+      line-height:1;
+      margin:4px 0 6px;
+    }
+
+    .panel h2{
+      margin:0;
+      font-size:1.8rem;
+    }
+
+    .sub{
+      color:#cbd5e1;
+      margin:.25rem 0 1rem;
+    }
+
+    .facts{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(120px,1fr));
+      gap:10px;
+      margin:14px 0;
+    }
+
+    .fact{
+      background:#0b1220;
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:14px;
+      padding:12px;
+    }
+
+    .fact .label{
+      display:block;
+      color:#93c5fd;
+      font-size:.78rem;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      margin-bottom:5px;
+    }
+
+    .fact .value{
+      font-size:1rem;
+      font-weight:800;
+      line-height:1.35;
+    }
+
+    .kid-box{
+      margin-top:14px;
+      padding:14px;
+      border-radius:16px;
+      background:linear-gradient(135deg, rgba(34,197,94,.12), rgba(168,85,247,.12));
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .kid-box h3{
+      margin:.1rem 0 .4rem;
+      font-size:1rem;
+    }
+
+    .kid-box p{
+      margin:0;
+      color:#dbeafe;
+      line-height:1.55;
+    }
+
+    .footer-note{
+      margin-top:12px;
+      color:#94a3b8;
+      font-size:.88rem;
+      line-height:1.5;
+    }
+
+    .loading, .error{
+      padding:18px;
+      border-radius:16px;
+      background:rgba(15,23,42,.65);
+      border:1px solid rgba(255,255,255,.08);
+      color:#e2e8f0;
+      line-height:1.6;
+    }
+
+    @media (max-width: 1100px){
+      .layout{ grid-template-columns:1fr; }
+      .panel{ position:relative; top:auto; }
+      .controls{ grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>🔬 Interactive Periodic Table for Curious Kids</h1>
+      <p>
+        Click any element to explore where it lives on the table, what category it belongs to,
+        its atomic radius, and its electronegativity. You can search, filter by category,
+        and even color the table by a chemistry property.
+      </p>
+
+      <div class="controls">
+        <div class="control-card">
+          <label for="searchBox">Search by name, symbol, or atomic number</label>
+          <input id="searchBox" type="text" placeholder="Try: Oxygen, O, 8..." />
+        </div>
+
+        <div class="control-card">
+          <label for="propertyMode">Color the table by</label>
+          <select id="propertyMode">
+            <option value="category">Category</option>
+            <option value="electronegativity">Electronegativity</option>
+            <option value="radius">Atomic Radius</option>
+          </select>
+        </div>
+
+        <div class="control-card">
+          <label for="funPrompt">Quick challenge</label>
+          <select id="funPrompt">
+            <option value="">Pick a mini mission...</option>
+            <option value="highest-en">Find the most electron-hungry element</option>
+            <option value="largest-radius">Find a giant atom</option>
+            <option value="nobles">Spot the noble gases</option>
+            <option value="halogens">Find the halogens</option>
+            <option value="alkali">Find the alkali metals</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="legend" id="legend"></div>
+    </section>
+
+    <div class="layout">
+      <section class="board">
+        <div id="status" class="loading">Loading periodic table data...</div>
+        <div id="tableGrid" class="table-grid" style="display:none;"></div>
+      </section>
+
+      <aside class="panel">
+        <div id="details">
+          <div class="badge" style="background:var(--accent)">Ready to explore</div>
+          <div class="big-symbol">🧪</div>
+          <h2>Pick an element</h2>
+          <p class="sub">Click any square on the periodic table to see fun facts and chemistry clues.</p>
+
+          <div class="kid-box">
+            <h3>What do these words mean?</h3>
+            <p>
+              <strong>Category</strong> tells what kind of element it is.
+              <strong>Atomic radius</strong> is a way to describe the atom’s size.
+              <strong>Electronegativity</strong> tells how strongly an atom pulls on shared electrons in a bond.
+            </p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const CATEGORY_COLORS = {
+      "alkali metal": "var(--alkali)",
+      "alkaline earth metal": "var(--alkaline)",
+      "transition metal": "var(--transition)",
+      "post-transition metal": "var(--post)",
+      "metalloid": "var(--metalloid)",
+      "reactive nonmetal": "var(--nonmetal)",
+      "diatomic nonmetal": "var(--nonmetal)",
+      "polyatomic nonmetal": "var(--nonmetal)",
+      "nonmetal": "var(--nonmetal)",
+      "halogen": "var(--halogen)",
+      "noble gas": "var(--noble)",
+      "lanthanide": "var(--lanthanide)",
+      "actinide": "var(--actinide)",
+      "unknown": "var(--unknown)"
+    };
+
+    const KID_NAMES = {
+      "alkali metal": "Alkali Metal",
+      "alkaline earth metal": "Alkaline Earth Metal",
+      "transition metal": "Transition Metal",
+      "post-transition metal": "Post-Transition Metal",
+      "metalloid": "Metalloid",
+      "reactive nonmetal": "Nonmetal",
+      "diatomic nonmetal": "Nonmetal",
+      "polyatomic nonmetal": "Nonmetal",
+      "nonmetal": "Nonmetal",
+      "halogen": "Halogen",
+      "noble gas": "Noble Gas",
+      "lanthanide": "Lanthanide",
+      "actinide": "Actinide",
+      "unknown": "Unknown / Synthetic"
+    };
+
+    const FUN_FACTS = {
+      "alkali metal": "These metals are super reactive. They love to lose one electron.",
+      "alkaline earth metal": "These metals usually lose two electrons when they react.",
+      "transition metal": "These are the colorful, hard-working metals in the middle of the table.",
+      "post-transition metal": "These metals are usually softer and sit just after the transition metals.",
+      "metalloid": "Metalloids can act like metals and nonmetals — a little bit of both!",
+      "reactive nonmetal": "These elements are important for life and chemistry, and many love sharing electrons.",
+      "diatomic nonmetal": "These nonmetals often pair up in twos, like O₂ and N₂.",
+      "polyatomic nonmetal": "These nonmetals are often found in many different compounds.",
+      "nonmetal": "Nonmetals are usually poor conductors and often gain or share electrons.",
+      "halogen": "Halogens are super reactive nonmetals and love to grab one more electron.",
+      "noble gas": "Noble gases are the chill crowd — they’re already stable and don’t react much.",
+      "lanthanide": "Lanthanides are rare-earth elements often used in magnets, screens, and lasers.",
+      "actinide": "Actinides include heavy elements, and many are radioactive.",
+      "unknown": "Scientists are still learning about some of these newer synthetic elements."
+    };
+
+    const searchBox = document.getElementById('searchBox');
+    const propertyMode = document.getElementById('propertyMode');
+    const funPrompt = document.getElementById('funPrompt');
+    const statusBox = document.getElementById('status');
+    const tableGrid = document.getElementById('tableGrid');
+    const detailBox = document.getElementById('details');
+    const legend = document.getElementById('legend');
+
+    let elements = [];
+    let visibleCategory = 'all';
+    let activeAtomicNumber = null;
+
+    async function loadData(){
+      try{
+        const [jsonRes, csvRes] = await Promise.all([
+          fetch('./PeriodicTableJSON.json'),
+          fetch('./pubchem_periodic_table.csv')
+        ]);
+
+        if(!jsonRes.ok){
+          throw new Error('Could not load PeriodicTableJSON.json');
+        }
+        if(!csvRes.ok){
+          throw new Error('Could not load pubchem_periodic_table.csv');
+        }
+
+        const periodicData = await jsonRes.json();
+        const csvText = await csvRes.text();
+
+        const pubchemMap = parseCSV(csvText);
+        const merged = periodicData.elements.map(el => {
+          const pub = pubchemMap.get(String(el.number)) || pubchemMap.get(el.symbol) || {};
+          const category = normalizeCategory(el.category);
+          const atomicRadius = cleanNumber(pub.AtomicRadius);
+          const electronegativity = cleanNumber(pub.Electronegativity);
+
+          return {
+            number: el.number,
+            symbol: el.symbol,
+            name: el.name,
+            period: el.period,
+            group: el.group ?? null,
+            category,
+            categoryLabel: KID_NAMES[category] || titleCase(category),
+            block: getBlock(el, category),
+            atomicMass: el.atomic_mass ?? null,
+            atomicRadius,
+            electronegativity,
+            xpos: getXPos(el),
+            ypos: getYPos(el),
+            summary: el.summary || '',
+            source: el.source || ''
+          };
+        });
+
+        elements = merged.sort((a,b)=>a.number-b.number);
+        statusBox.style.display = 'none';
+        tableGrid.style.display = 'grid';
+
+        buildLegend();
+        buildGrid();
+        render();
+        const oxygen = elements.find(e => e.symbol === 'O');
+        if(oxygen) showDetails(oxygen.number);
+      }catch(err){
+        statusBox.className = 'error';
+        statusBox.innerHTML = `
+          <strong>Oops — the data files were not found.</strong><br><br>
+          Make sure these two files are in the same folder as this page:<br>
+          <code>PeriodicTableJSON.json</code><br>
+          <code>pubchem_periodic_table.csv</code><br><br>
+          Error message: ${escapeHtml(err.message)}
+        `;
+      }
+    }
+
+    function parseCSV(text){
+      const rows = [];
+      let row = [];
+      let value = '';
+      let inQuotes = false;
+
+      for(let i=0;i<text.length;i++){
+        const char = text[i];
+        const next = text[i+1];
+
+        if(char === '"'){
+          if(inQuotes && next === '"'){
+            value += '"';
+            i++;
+          }else{
+            inQuotes = !inQuotes;
+          }
+        }else if(char === ',' && !inQuotes){
+          row.push(value);
+          value = '';
+        }else if((char === '\n' || char === '\r') && !inQuotes){
+          if(char === '\r' && next === '\n'){ i++; }
+          row.push(value);
+          if(row.some(cell => cell !== '')) rows.push(row);
+          row = [];
+          value = '';
+        }else{
+          value += char;
+        }
+      }
+
+      if(value.length || row.length){
+        row.push(value);
+        rows.push(row);
+      }
+
+      const headers = rows[0].map(h => h.trim());
+      const map = new Map();
+
+      for(let i=1;i<rows.length;i++){
+        const obj = {};
+        headers.forEach((h,idx)=> obj[h] = (rows[i][idx] ?? '').trim());
+        if(obj.AtomicNumber) map.set(String(obj.AtomicNumber), obj);
+        if(obj.Symbol) map.set(obj.Symbol, obj);
+      }
+
+      return map;
+    }
+
+    function cleanNumber(v){
+      if(v === null || v === undefined) return null;
+      const t = String(v).trim();
+      if(!t || t.toLowerCase() === 'nan') return null;
+      const n = Number(t.replace(/[^\d.\-]/g,''));
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function normalizeCategory(category){
+      const c = String(category || 'unknown').toLowerCase().trim();
+      if(c.includes('alkali metal') && !c.includes('alkaline')) return 'alkali metal';
+      if(c.includes('alkaline earth')) return 'alkaline earth metal';
+      if(c.includes('transition metal')) return 'transition metal';
+      if(c.includes('post-transition')) return 'post-transition metal';
+      if(c.includes('metalloid')) return 'metalloid';
+      if(c.includes('halogen')) return 'halogen';
+      if(c.includes('noble gas')) return 'noble gas';
+      if(c.includes('lanthanide')) return 'lanthanide';
+      if(c.includes('actinide')) return 'actinide';
+      if(c.includes('nonmetal')) {
+        if(c.includes('diatomic')) return 'diatomic nonmetal';
+        if(c.includes('polyatomic')) return 'polyatomic nonmetal';
+        return 'nonmetal';
+      }
+      return 'unknown';
+    }
+
+    function getBlock(el, category){
+      if(category === 'lanthanide' || category === 'actinide') return 'f-block';
+      if(el.group >= 1 && el.group <= 2) return 's-block';
+      if(el.group >= 13 && el.group <= 18) return 'p-block';
+      if(el.group >= 3 && el.group <= 12) return 'd-block';
+      return 'Unknown block';
+    }
+
+    function getXPos(el){
+      if(el.number >= 57 && el.number <= 71) return (el.number - 57) + 4;
+      if(el.number >= 89 && el.number <= 103) return (el.number - 89) + 4;
+      return el.group || 0;
+    }
+
+    function getYPos(el){
+      if(el.number >= 57 && el.number <= 71) return 9;
+      if(el.number >= 89 && el.number <= 103) return 10;
+      return el.period;
+    }
+
+    function buildLegend(){
+      legend.innerHTML = '';
+      const categories = [
+        'all',
+        'alkali metal',
+        'alkaline earth metal',
+        'transition metal',
+        'post-transition metal',
+        'metalloid',
+        'nonmetal',
+        'halogen',
+        'noble gas',
+        'lanthanide',
+        'actinide'
+      ];
+
+      categories.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'chip' + (cat === visibleCategory ? ' active':'');
+        btn.textContent = cat === 'all' ? 'Show All' : (KID_NAMES[cat] || titleCase(cat));
+        btn.style.background = cat === 'all' ? '#e2e8f0' : (CATEGORY_COLORS[cat] || 'var(--unknown)');
+        btn.addEventListener('click', ()=>{
+          visibleCategory = cat;
+          buildLegend();
+          render();
+        });
+        legend.appendChild(btn);
+      });
+    }
+
+    function buildGrid(){
+      tableGrid.innerHTML = '';
+
+      tableGrid.appendChild(blankCell(''));
+      for(let g=1; g<=18; g++){
+        tableGrid.appendChild(axisCell(String(g)));
+      }
+
+      for(let r=1; r<=10; r++){
+        tableGrid.appendChild(axisCell(r <= 7 ? `P${r}` : (r === 9 ? 'Ln' : 'An')));
+        for(let c=1; c<=18; c++){
+          const placeholder = document.createElement('div');
+          placeholder.dataset.row = r;
+          placeholder.dataset.col = c;
+          placeholder.style.gridColumn = c + 1;
+          placeholder.style.gridRow = r;
+          tableGrid.appendChild(placeholder);
+        }
+      }
+
+      elements.forEach(el => {
+        const btn = document.createElement('button');
+        btn.className = 'element';
+        btn.dataset.number = el.number;
+        btn.dataset.category = el.category;
+        btn.dataset.name = el.name.toLowerCase();
+        btn.dataset.symbol = el.symbol.toLowerCase();
+        btn.style.gridColumn = el.xpos + 1;
+        btn.style.gridRow = el.ypos;
+        btn.innerHTML = `
+          <div class="num">${el.number}</div>
+          <div class="sym">${el.symbol}</div>
+          <div class="name">${el.name}</div>
+          <div class="tiny">${formatTinyValue(el)}</div>
+        `;
+        btn.addEventListener('click', ()=> showDetails(el.number));
+        tableGrid.appendChild(btn);
+      });
+    }
+
+    function axisCell(text){
+      const div = document.createElement('div');
+      div.className = 'axis';
+      div.textContent = text;
+      return div;
+    }
+
+    function blankCell(text){
+      const div = document.createElement('div');
+      div.className = 'axis';
+      div.textContent = text;
+      return div;
+    }
+
+    function render(){
+      const term = searchBox.value.trim().toLowerCase();
+      const mode = propertyMode.value;
+
+      const filtered = elements.filter(el => {
+        const categoryMatch = visibleCategory === 'all'
+          ? true
+          : (visibleCategory === 'nonmetal'
+              ? ['nonmetal','diatomic nonmetal','polyatomic nonmetal','reactive nonmetal'].includes(el.category)
+              : el.category === visibleCategory);
+
+        const searchMatch = !term ||
+          el.name.toLowerCase().includes(term) ||
+          el.symbol.toLowerCase().includes(term) ||
+          String(el.number) === term;
+
+        return categoryMatch && searchMatch;
+      });
+
+      const visibleSet = new Set(filtered.map(e => e.number));
+
+      document.querySelectorAll('.element').forEach(btn => {
+        const atomicNumber = Number(btn.dataset.number);
+        const el = elements.find(x => x.number === atomicNumber);
+        const isVisible = visibleSet.has(atomicNumber);
+
+        btn.classList.toggle('dim', !isVisible);
+        btn.classList.toggle('active', atomicNumber === activeAtomicNumber);
+
+        if(el){
+          btn.style.background = getColorForElement(el, mode);
+          btn.style.color = readableTextColor(getColorForElement(el, mode));
+        }
+      });
+    }
+
+    function getColorForElement(el, mode){
+      if(mode === 'category'){
+        return CATEGORY_COLORS[el.category] || 'var(--unknown)';
+      }
+      if(mode === 'electronegativity'){
+        return valueToColor(el.electronegativity, 0.7, 4.0, ['#0ea5e9','#22c55e','#facc15','#fb7185']);
+      }
+      if(mode === 'radius'){
+        return valueToColor(el.atomicRadius, 50, 350, ['#a78bfa','#60a5fa','#34d399','#f59e0b']);
+      }
+      return CATEGORY_COLORS[el.category] || 'var(--unknown)';
+    }
+
+    function valueToColor(value, min, max, palette){
+      if(value == null) return 'var(--unknown)';
+      const t = Math.max(0, Math.min(1, (value - min)/(max - min)));
+      return interpolatePalette(palette, t);
+    }
+
+    function interpolatePalette(colors, t){
+      const stops = colors.map(hexToRgb);
+      const scaled = t * (stops.length - 1);
+      const idx = Math.floor(scaled);
+      const frac = scaled - idx;
+      const a = stops[idx];
+      const b = stops[Math.min(idx + 1, stops.length - 1)];
+      const mix = {
+        r: Math.round(a.r + (b.r - a.r)*frac),
+        g: Math.round(a.g + (b.g - a.g)*frac),
+        b: Math.round(a.b + (b.b - a.b)*frac),
+      };
+      return `rgb(${mix.r}, ${mix.g}, ${mix.b})`;
+    }
+
+    function hexToRgb(hex){
+      const clean = hex.replace('#','');
+      const bigint = parseInt(clean, 16);
+      return {
+        r: (bigint >> 16) & 255,
+        g: (bigint >> 8) & 255,
+        b: bigint & 255
+      };
+    }
+
+    function readableTextColor(color){
+      if(String(color).startsWith('var(')) return '#071018';
+      const match = color.match(/\d+/g);
+      if(!match) return '#071018';
+      const [r,g,b] = match.map(Number);
+      const luminance = (0.2126*r + 0.7152*g + 0.0722*b) / 255;
+      return luminance > 0.62 ? '#071018' : '#f8fafc';
+      }
+
+    function showDetails(atomicNumber){
+      activeAtomicNumber = atomicNumber;
+      render();
+
+      const el = elements.find(e => e.number === atomicNumber);
+      if(!el) return;
+
+      const badgeColor = CATEGORY_COLORS[el.category] || 'var(--unknown)';
+      const areaText = `Group ${el.group ?? '—'} • Period ${el.period} • ${el.block}`;
+
+      detailBox.innerHTML = `
+        <div class="badge" style="background:${badgeColor}; color:${readableTextColor(badgeColor)}">
+          ${escapeHtml(el.categoryLabel)}
+        </div>
+        <div class="big-symbol">${escapeHtml(el.symbol)}</div>
+        <h2>${escapeHtml(el.name)}</h2>
+        <p class="sub">Atomic Number ${el.number} • ${escapeHtml(areaText)}</p>
+
+        <div class="facts">
+          <div class="fact">
+            <span class="label">Category</span>
+            <div class="value">${escapeHtml(el.categoryLabel)}</div>
+          </div>
+          <div class="fact">
+            <span class="label">Area of the table</span>
+            <div class="value">${escapeHtml(areaText)}</div>
+          </div>
+          <div class="fact">
+            <span class="label">Atomic Radius</span>
+            <div class="value">${el.atomicRadius != null ? `${el.atomicRadius} pm` : 'Unknown'}</div>
+          </div>
+          <div class="fact">
+            <span class="label">Electronegativity</span>
+            <div class="value">${el.electronegativity != null ? el.electronegativity : 'Unknown'}</div>
+          </div>
+          <div class="fact">
+            <span class="label">Atomic Mass</span>
+            <div class="value">${el.atomicMass != null ? el.atomicMass : 'Unknown'}</div>
+          </div>
+          <div class="fact">
+            <span class="label">Chemical Symbol</span>
+            <div class="value">${escapeHtml(el.symbol)}</div>
+          </div>
+        </div>
+
+        <div class="kid-box">
+          <h3>Kid-friendly clue</h3>
+          <p>${escapeHtml(makeKidExplanation(el))}</p>
+        </div>
+
+        <div class="footer-note">
+          Tip: switch the color mode above to “Electronegativity” or “Atomic Radius” to see table-wide trends.
+        </div>
+      `;
+    }
+
+    function makeKidExplanation(el){
+      const facts = [];
+      facts.push(`${el.name} is in the ${el.categoryLabel} category.`);
+      facts.push(`It sits in period ${el.period}${el.group ? ` and group ${el.group}` : ''}, which helps show its “address” on the periodic table.`);
+      if(el.atomicRadius != null){
+        facts.push(`Its atomic radius is ${el.atomicRadius} pm, which gives a clue about how big its atom is.`);
+      }else{
+        facts.push(`Its atomic radius is not listed here, so scientists may still be measuring or estimating it.`);
+      }
+      if(el.electronegativity != null){
+        facts.push(`Its electronegativity is ${el.electronegativity}, which tells us how strongly it pulls on shared electrons.`);
+      }else{
+        facts.push(`Its electronegativity is unknown here, which often happens for some very new or unusual elements.`);
+      }
+      facts.push(FUN_FACTS[el.category] || FUN_FACTS.unknown);
+      return facts.join(' ');
+    }
+
+    function formatTinyValue(el){
+      if(propertyMode.value === 'electronegativity') return `EN ${el.electronegativity ?? '—'}`;
+      if(propertyMode.value === 'radius') return `R ${el.atomicRadius ?? '—'} pm`;
+      return el.group ? `G${el.group} • P${el.period}` : `P${el.period}`;
+    }
+
+    function titleCase(str){
+      return String(str).replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'","&#39;");
+    }
+
+    searchBox.addEventListener('input', render);
+
+    propertyMode.addEventListener('change', () => {
+      document.querySelectorAll('.element').forEach(btn => {
+        const atomicNumber = Number(btn.dataset.number);
+        const el = elements.find(x => x.number === atomicNumber);
+        if(el){
+          btn.querySelector('.tiny').textContent = formatTinyValue(el);
+        }
+      });
+      render();
+    });
+
+    funPrompt.addEventListener('change', ()=>{
+      const value = funPrompt.value;
+      if(value === 'nobles'){
+        visibleCategory = 'noble gas';
+        searchBox.value = '';
+      }else if(value === 'halogens'){
+        visibleCategory = 'halogen';
+        searchBox.value = '';
+      }else if(value === 'alkali'){
+        visibleCategory = 'alkali metal';
+        searchBox.value = '';
+      }else if(value === 'highest-en'){
+        propertyMode.value = 'electronegativity';
+        visibleCategory = 'all';
+        searchBox.value = 'F';
+      }else if(value === 'largest-radius'){
+        propertyMode.value = 'radius';
+        visibleCategory = 'all';
+        searchBox.value = 'Fr';
+      }
+      buildLegend();
+      render();
+      if(searchBox.value){
+        const match = elements.find(el =>
+          el.symbol.toLowerCase() === searchBox.value.toLowerCase() ||
+          el.name.toLowerCase() === searchBox.value.toLowerCase()
+        );
+        if(match) showDetails(match.number);
+      }
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
