@@ -54,6 +54,16 @@ button {
 <button onclick="update()">Update Atom</button>
 
 <p id="result"></p>
+<div class="card">
+<h2>Say It</h2>
+
+<p>This atom has <span id="sp">6</span> protons and 
+<span id="se">6</span> electrons.</p>
+
+<p>The atom is <span id="stype">neutral</span>.</p>
+
+</div>
+  
 </div>
 
 <div class="card">
@@ -108,6 +118,29 @@ function task(p, n, e) {
 }
 
 update();
+function update() {
+  let p = Number(document.getElementById("p").value);
+  let e = Number(document.getElementById("e").value);
+
+  let charge = p - e;
+  let type = "";
+
+  if (charge === 0) {
+    type = "neutral";
+  } else if (charge > 0) {
+    type = "positive";
+  } else {
+    type = "negative";
+  }
+
+  document.getElementById("result").innerText =
+    "Protons: " + p + " | Electrons: " + e + " → Charge: " + charge;
+
+  // ✅ NEW: update sentence frame
+  document.getElementById("sp").innerText = p;
+  document.getElementById("se").innerText = e;
+  document.getElementById("stype").innerText = type;
+}  
 
 </script>
 
