@@ -111,40 +111,11 @@ function update() {
 </script>
 
 function update() {
-
-  let p = Number(document.getElementById("p").value);
-  let e = Number(document.getElementById("e").value);
-
-  let charge = p - e;
-  let type = "";
-  let reason = "";
-
-  if (charge === 0) {
-    type = "neutral";
-    reason = "because protons = electrons";
-  }
-  else if (charge > 0) {
-    type = "positive";
-    reason = "because protons > electrons";
-  }
-  else {
-    type = "negative";
-    reason = "because electrons > protons";
-  }
+  let p = document.getElementById("p").value;
 
   document.getElementById("result").innerText =
-    "Charge: " + charge;
-
-  document.getElementById("why").innerText =
-    "This atom is " + type + " " + reason;
-
-  // sentence frame updates
-  document.getElementById("sp").innerText = p;
-  document.getElementById("se").innerText = e;
-  document.getElementById("stype").innerText = type;
-
+    "Protons = " + p;
 }
-
 function task(p, n, e) {
 
   document.getElementById("p").value = p;
