@@ -1,7 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
 <title>Atom Builder</title>
 
 <style>
@@ -21,6 +20,13 @@ button {
   padding: 10px;
   margin: 5px;
 }
+
+.word {
+  background: #eef;
+  padding: 5px 10px;
+  margin: 3px;
+  display: inline-block;
+}
 </style>
 </head>
 
@@ -28,17 +34,28 @@ button {
 
 <h1>Build an Atom</h1>
 
+<!-- CONCEPT -->
 <div class="card">
 <h2>Key Idea</h2>
+
 <ul>
-  <li>Proton → positive (+)</li>
-  <li>Neutron → no charge</li>
-  <li>Electron → negative (−)</li>
+  <li><strong>Proton</strong> → positive (+)</li>
+  <li><strong>Neutron</strong> → no charge</li>
+  <li><strong>Electron</strong> → negative (−)</li>
 </ul>
 
 <p><strong>An atom is neutral when:</strong> protons = electrons</p>
+
+<h3>Word Bank</h3>
+<span class="word">proton</span>
+<span class="word">electron</span>
+<span class="word">neutron</span>
+<span class="word">charge</span>
+<span class="word">neutral</span>
+
 </div>
 
+<!-- TOOL -->
 <div class="card">
 <h2>Build the Atom</h2>
 
@@ -53,7 +70,14 @@ button {
 
 <button onclick="update()">Update Atom</button>
 
+<h3>Result</h3>
 <p id="result"></p>
+
+<p id="why"></p>
+
+</div>
+
+<!-- LANGUAGE SUPPORT -->
 <div class="card">
 <h2>Say It</h2>
 
@@ -63,14 +87,14 @@ button {
 <p>The atom is <span id="stype">neutral</span>.</p>
 
 </div>
-  
-</div>
 
+<!-- PRACTICE -->
 <div class="card">
 <h2>Try This</h2>
 
 <button onclick="task(6,6,6)">Neutral Atom</button>
-<button onclick="task(6,6,5)">Positive Ion</button>
+<button onclick="task(6,6,5)">Positive Atom</button>
+<button onclick="task(6,6,7)">Negative Atom</button>
 
 <p id="feedback"></p>
 
@@ -79,68 +103,53 @@ button {
 <script>
 
 function update() {
+
   let p = Number(document.getElementById("p").value);
   let e = Number(document.getElementById("e").value);
 
   let charge = p - e;
-
-  let text = "";
+  let type = "";
+  let reason = "";
 
   if (charge === 0) {
-    text = "This atom is neutral.";
-  } else if (charge > 0) {
-    text = "This atom is positive.";
-  } else {
-    text = "This atom is negative.";
+    type = "neutral";
+    reason = "because protons = electrons";
+  }
+  else if (charge > 0) {
+    type = "positive";
+    reason = "because protons > electrons";
+  }
+  else {
+    type = "negative";
+    reason = "because electrons > protons";
   }
 
   document.getElementById("result").innerText =
-    "Protons: " + p + " | Electrons: " + e + " → Charge: " + charge + "\n" + text;
+    "Charge: " + charge;
+
+  document.getElementById("why").innerText =
+    "This atom is " + type + " " + reason;
+
+  // sentence frame updates
+  document.getElementById("sp").innerText = p;
+  document.getElementById("se").innerText = e;
+  document.getElementById("stype").innerText = type;
+
 }
 
 function task(p, n, e) {
+
   document.getElementById("p").value = p;
   document.getElementById("n").value = n;
   document.getElementById("e").value = e;
 
   update();
 
-  if (p === e) {
-    document.getElementById("feedback").innerText =
-      "Correct: This atom is neutral.";
-  } else if (p > e) {
-    document.getElementById("feedback").innerText =
-      "Correct: This atom is positive.";
-  } else {
-    document.getElementById("feedback").innerText =
-      "Correct: This atom is negative.";
-  }
+  document.getElementById("feedback").innerText =
+    "Explain: Why is this atom " + document.getElementById("stype").innerText + "?";
 }
 
 update();
-function update() {
-  let p = Number(document.getElementById("p").value);
-  let e = Number(document.getElementById("e").value);
-
-  let charge = p - e;
-  let type = "";
-
-  if (charge === 0) {
-    type = "neutral";
-  } else if (charge > 0) {
-    type = "positive";
-  } else {
-    type = "negative";
-  }
-
-  document.getElementById("result").innerText =
-    "Protons: " + p + " | Electrons: " + e + " → Charge: " + charge;
-
-  // ✅ NEW: update sentence frame
-  document.getElementById("sp").innerText = p;
-  document.getElementById("se").innerText = e;
-  document.getElementById("stype").innerText = type;
-}  
 
 </script>
 
