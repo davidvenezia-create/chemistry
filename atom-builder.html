@@ -144,11 +144,12 @@ function update() {
     reason = "because electrons > protons";
   }
 
-  document.getElementById("result").innerText =
-    "Protons: " + p + 
-    " | Neutrons: " + n + 
-    " | Electrons: " + e + 
-    " | Charge: " + charge;
+document.getElementById("result").innerText =
+  "Element: " + element +
+  " | Protons: " + p +
+  " | Neutrons: " + n +
+  " | Electrons: " + e +
+  " | Charge: " + charge;
 
   document.getElementById("reason").innerText =
     "This atom is " + type + " " + reason;
