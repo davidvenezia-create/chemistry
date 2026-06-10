@@ -112,9 +112,13 @@ function update() {
 
 function update() {
   let p = document.getElementById("p").value;
+  let e = document.getElementById("e").value;
+
+  let charge = p - e;
 
   document.getElementById("result").innerText =
-    "Protons = " + p;
+    "Protons: " + p + " | Electrons: " + e + " | Charge: " + charge;
+}
 }
 function task(p, n, e) {
 
