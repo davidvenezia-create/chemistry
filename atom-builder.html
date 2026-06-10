@@ -1,42 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Atom Builder</title>
+  <meta charset="UTF-8">
+  <title>Build an Atom</title>
 
-<style>
-body { font-family: Arial; margin: 20px; background:#f5f7fb; }
+  <style>
+    body {
+      font-family: Arial;
+      margin: 20px;
+      background: #f5f7fb;
+    }
 
-.card {
-  background:white;
-  border-radius:10px;
-  padding:15px;
-  margin-bottom:15px;
-  border:1px solid #ddd;
-}
+    h1 {
+      color: #1e3a8a;
+    }
 
-h1 { color:#1e3a8a; }
+    .card {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
 
-.word {
-  background:#e0e7ff;
-  padding:5px 10px;
-  margin:3px;
-  display:inline-block;
-  border-radius:10px;
-}
+    button {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 6px;
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+    }
 
-button {
-  padding:10px;
-  margin:5px;
-  border:none;
-  border-radius:6px;
-  background:#2563eb;
-  color:white;
-  cursor:pointer;
-}
+    button:hover {
+      background: #1d4ed8;
+    }
 
-button:hover { background:#1d4ed8; }
-</style>
-
+    .word {
+      background: #e0e7ff;
+      padding: 6px 10px;
+      margin: 3px;
+      display: inline-block;
+      border-radius: 10px;
+    }
+  </style>
 </head>
 
 <body>
@@ -45,11 +53,10 @@ button:hover { background:#1d4ed8; }
 
 <div class="card">
 <h2>Key Idea</h2>
-
 <ul>
-  <li><strong>Protons</strong> → positive charge (+)</li>
-  <li><strong>Neutrons</strong> → no charge</li>
-  <li><strong>Electrons</strong> → negative charge (−)</li>
+  <li><strong>Proton</strong> → positive (+)</li>
+  <li><strong>Neutron</strong> → no charge</li>
+  <li><strong>Electron</strong> → negative (−)</li>
 </ul>
 
 <p><strong>An atom is neutral when:</strong> protons = electrons</p>
@@ -60,28 +67,23 @@ button:hover { background:#1d4ed8; }
 <span class="word">neutron</span>
 <span class="word">charge</span>
 <span class="word">neutral</span>
-
 </div>
+
 
 <div class="card">
 <h2>Build the Atom</h2>
 
-Protons:
-<input id="p" type="number" value="6"><br>
-
-Neutrons:
-<input id="n" type="number" value="6"><br>
-
-Electrons:
-<input id="e" type="number" value="6"><br>
+<p>Protons: <input id="p" type="number" value="6"></p>
+<p>Neutrons: <input id="n" type="number" value="6"></p>
+<p>Electrons: <input id="e" type="number" value="6"></p>
 
 <button onclick="update()">Update Atom</button>
 
 <h3>Result</h3>
 <p id="result"></p>
 <p id="reason"></p>
-
 </div>
+
 
 <div class="card">
 <h2>Say It</h2>
@@ -90,8 +92,8 @@ Electrons:
 <span id="se">6</span> electrons.</p>
 
 <p>The atom is <span id="stype">neutral</span>.</p>
-
 </div>
+
 
 <div class="card">
 <h2>Try This</h2>
@@ -101,8 +103,8 @@ Electrons:
 <button onclick="task(6,6,7)">Negative Ion</button>
 
 <p id="feedback"></p>
-
 </div>
+
 
 <script>
 
@@ -119,27 +121,33 @@ function update() {
   if (charge === 0) {
     type = "neutral";
     reason = "because protons = electrons";
-  } else if (charge > 0) {
+  } 
+  else if (charge > 0) {
     type = "positive";
     reason = "because protons > electrons";
-  } else {
+  } 
+  else {
     type = "negative";
     reason = "because electrons > protons";
   }
 
   document.getElementById("result").innerText =
-    "Protons: " + p + " | Neutrons: " + n + " | Electrons: " + e + " | Charge: " + charge;
+    "Protons: " + p + 
+    " | Neutrons: " + n + 
+    " | Electrons: " + e + 
+    " | Charge: " + charge;
 
   document.getElementById("reason").innerText =
     "This atom is " + type + " " + reason;
 
-  // language support
   document.getElementById("sp").innerText = p;
   document.getElementById("se").innerText = e;
   document.getElementById("stype").innerText = type;
 }
 
-function task(p,n,e){
+
+function task(p, n, e) {
+
   document.getElementById("p").value = p;
   document.getElementById("n").value = n;
   document.getElementById("e").value = e;
@@ -147,7 +155,8 @@ function task(p,n,e){
   update();
 
   document.getElementById("feedback").innerText =
-    "Explain: Why is this atom " + document.getElementById("stype").innerText + "?";
+    "Explain: Why is this atom " + 
+    document.getElementById("stype").innerText + "?";
 }
 
 update();
@@ -156,3 +165,4 @@ update();
 
 </body>
 </html>
+``
