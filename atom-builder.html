@@ -4,44 +4,52 @@
 <title>Atom Builder</title>
 
 <style>
-body {
-  font-family: Arial;
-  margin: 20px;
-}
+body { font-family: Arial; margin: 20px; background:#f5f7fb; }
 
 .card {
-  border: 1px solid #ccc;
-  padding: 15px;
-  margin-bottom: 20px;
-  border-radius: 10px;
+  background:white;
+  border-radius:10px;
+  padding:15px;
+  margin-bottom:15px;
+  border:1px solid #ddd;
+}
+
+h1 { color:#1e3a8a; }
+
+.word {
+  background:#e0e7ff;
+  padding:5px 10px;
+  margin:3px;
+  display:inline-block;
+  border-radius:10px;
 }
 
 button {
-  padding: 10px;
-  margin: 5px;
+  padding:10px;
+  margin:5px;
+  border:none;
+  border-radius:6px;
+  background:#2563eb;
+  color:white;
+  cursor:pointer;
 }
 
-.word {
-  background: #eef;
-  padding: 5px 10px;
-  margin: 3px;
-  display: inline-block;
-}
+button:hover { background:#1d4ed8; }
 </style>
+
 </head>
 
 <body>
 
 <h1>Build an Atom</h1>
 
-<!-- CONCEPT -->
 <div class="card">
 <h2>Key Idea</h2>
 
 <ul>
-  <li><strong>Proton</strong> → positive (+)</li>
-  <li><strong>Neutron</strong> → no charge</li>
-  <li><strong>Electron</strong> → negative (−)</li>
+  <li><strong>Protons</strong> → positive charge (+)</li>
+  <li><strong>Neutrons</strong> → no charge</li>
+  <li><strong>Electrons</strong> → negative charge (−)</li>
 </ul>
 
 <p><strong>An atom is neutral when:</strong> protons = electrons</p>
@@ -55,28 +63,26 @@ button {
 
 </div>
 
-<!-- TOOL -->
 <div class="card">
 <h2>Build the Atom</h2>
 
-<label>Protons:</label>
-<input type="number" id="p" value="6"><br>
+Protons:
+<input id="p" type="number" value="6"><br>
 
-<label>Neutrons:</label>
-<input type="number" id="n" value="6"><br>
+Neutrons:
+<input id="n" type="number" value="6"><br>
 
-<label>Electrons:</label>
-<input type="number" id="e" value="6"><br>
+Electrons:
+<input id="e" type="number" value="6"><br>
 
-<button onclick="update(); return false;">Update Atom</button>
+<button onclick="update()">Update Atom</button>
+
 <h3>Result</h3>
 <p id="result"></p>
-
-<p id="why"></p>
+<p id="reason"></p>
 
 </div>
 
-<!-- LANGUAGE SUPPORT -->
 <div class="card">
 <h2>Say It</h2>
 
@@ -87,32 +93,53 @@ button {
 
 </div>
 
-<!-- PRACTICE -->
 <div class="card">
 <h2>Try This</h2>
 
 <button onclick="task(6,6,6)">Neutral Atom</button>
-<button onclick="task(6,6,5)">Positive Atom</button>
-<button onclick="task(6,6,7)">Negative Atom</button>
+<button onclick="task(6,6,5)">Positive Ion</button>
+<button onclick="task(6,6,7)">Negative Ion</button>
 
 <p id="feedback"></p>
 
 </div>
 
-</script>
+<script>
 
 function update() {
-  let p = document.getElementById("p").value;
-  let e = document.getElementById("e").value;
+
+  let p = Number(document.getElementById("p").value);
+  let e = Number(document.getElementById("e").value);
+  let n = Number(document.getElementById("n").value);
 
   let charge = p - e;
+  let type = "";
+  let reason = "";
+
+  if (charge === 0) {
+    type = "neutral";
+    reason = "because protons = electrons";
+  } else if (charge > 0) {
+    type = "positive";
+    reason = "because protons > electrons";
+  } else {
+    type = "negative";
+    reason = "because electrons > protons";
+  }
 
   document.getElementById("result").innerText =
-    "Protons: " + p + " | Electrons: " + e + " | Charge: " + charge;
-}
-}
-function task(p, n, e) {
+    "Protons: " + p + " | Neutrons: " + n + " | Electrons: " + e + " | Charge: " + charge;
 
+  document.getElementById("reason").innerText =
+    "This atom is " + type + " " + reason;
+
+  // language support
+  document.getElementById("sp").innerText = p;
+  document.getElementById("se").innerText = e;
+  document.getElementById("stype").innerText = type;
+}
+
+function task(p,n,e){
   document.getElementById("p").value = p;
   document.getElementById("n").value = n;
   document.getElementById("e").value = e;
