@@ -68,7 +68,7 @@ button {
 <label>Electrons:</label>
 <input type="number" id="e" value="6"><br>
 
-<button onclick="alert('working')">Update Atom</button>
+<button onclick="update()">Update Atom</button>
 
 <h3>Result</h3>
 <p id="result"></p>
@@ -101,6 +101,14 @@ button {
 </div>
 
 <script>
+
+function update() {
+  let p = document.getElementById("p").value;
+
+  alert("Protons = " + p);
+}
+
+</script>
 
 function update() {
 
